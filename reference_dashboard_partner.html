@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Score</title>
+  <style>
+    body {
+
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background-color: #A0D8EF;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 9999;
+      font-family: sans-serif;
+    }
+    h3 {
+      color: #213E6D;
+      text-transform: uppercase;
+      font-size: 2em;
+      
+    }
+    h2 {
+      color: white;
+      font-size: 1.5em;
+
+    }
+
+    h1 {
+      font-size: 1.2em;
+    }
+    p {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .kpi-container .top-guys {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+    }
+
+    .top-guys .kpi {
+      background: #213E6D;
+      color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 10px;
+      text-align: center;
+    }
+
+    #score {
+      background: white;
+      color: #213E6D;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      align-items: center;
+      padding: 0 50px;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h3 class="username-display" id="userDisplay"></h3>
+  <h2>Quiz Score 🎉</h2>
+
+  <div class="kpi-container">
+    <div class="top-guys">
+      <div class="kpi" id="all">
+        <h1>All Questions</h1>
+        <p>Loading...</p>
+      </div>
+      <div class="kpi" id="attempt">
+        <h1>Attempts</h1>
+        <p>Loading...</p>
+      </div>
+      <div class="kpi" id="correct">
+        <h1>Correct Answers</h1>
+        <p>Loading...</p>
+      </div>
+    </div>
+    <div class="kpi" id="score">
+      <h1>Score (%)</h1>
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyoL5_Wuef_TKE882CTQfLcBeVpyEThOTA_yVQ9IpayeThqDj3DoA9Vy6wpP8CkWDZ5/exec";
+
+    async function loadUserScore() {
+      const quizUser = localStorage.getItem("quizUser") || prompt("Enter your username:");
+      document.getElementById('userDisplay').textContent = `${quizUser}!`;
+      
+
+
+      const response = await fetch(scriptURL, {
+        method: "POST",
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: JSON.stringify({ action: "getUserStats" })
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        const userStat = data.stats.find(s => s.user === quizUser);
+        if (userStat) {
+          document.getElementById("all").querySelector("p").textContent = userStat.all;
+          document.getElementById("attempt").querySelector("p").textContent = userStat.attempt;
+          document.getElementById("correct").querySelector("p").textContent = userStat.correct;
+          document.getElementById("score").querySelector("p").textContent = userStat.score + "%";
+          localStorage.removeItem("quizUser");
+        } else {
+          alert("User not found in results.");
+        }
+      } else {
+        alert("Error fetching result: " + data.message);
+      }
+    }
+
+    window.onload = loadUserScore;
+  </script>
+
+</body>
+</html>

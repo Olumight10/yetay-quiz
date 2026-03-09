@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Online Quiz</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* Reset and base styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* === Layout === */
+#online {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  width: 15%;
+  min-width: 200px;
+  height: 100vh;
+  background-color: #A0D8EF; /* DO NOT CHANGE */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.2rem;
+  overflow: hidden;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.yetay2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2A2D34; /* Deep neutral */
+  margin-bottom: 0.8rem;
+  text-align: center;
+  width: 100%;
+  letter-spacing: 1px;
+}
+
+.parthead {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #37474F; /* Slate gray */
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid #90A4AE; /* Cool slate border */
+  padding-bottom: 0.3rem;
+  text-align: center;
+  width: 100%;
+}
+
+#participant {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 2px;
+  padding-left: 2px;
+  scrollbar-width: none;
+}
+#participant::-webkit-scrollbar {
+  display: none;
+}
+
+.f-box {
+  background-color: #546E7A; /* Blue gray */
+  color: #ECEFF1; /* Off-white */
+  font-weight: 500;
+  padding: 0.7rem;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+.f-box:hover {
+  background-color: #455A64; /* Deeper gray-blue */
+  transform: translateY(-1px) scale(1.02);
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.current-participant {
+  background-color: #213E6D !important; /* DO NOT CHANGE */
+  color: #ffffff !important;
+  padding: 1rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+}
+.current-participant {
+  animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+
+.modal_menu {
+  width: 85%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+  display: none;
+  flex-direction: column;
+  z-index: 1000;
+  animation: slideIn 0.4s ease forwards;
+  color: white;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.3);
+  padding-top: 60px;
+}
+
+.nav-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px 40px;
+}
+
+.nav-bar a {
+  text-decoration: none;
+  color: #A0D8EF;
+  font-size: 1.2em;
+  transition: 0.3s;
+  border-bottom: 1px solid transparent;
+}
+
+.nav-bar a:hover {
+  color: white;
+  border-bottom: 1px solid #A0D8EF;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: transparent;
+  color: #A0D8EF;
+  font-size: 1.5em;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.close-btn:hover {
+  color: #ffffff;
+  transform: rotate(90deg);
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.main-content {
+  width: 85%;
+  background-color: #213E6D;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-box {
+  background: #ffffff33;
+  border-radius: 5px;
+  animation: pulse 1.2s ease-in-out infinite;
+  height: 40px;
+  flex: 1 1 150px; /* Grow/Shrink with a base width of 150px */
+  min-width: 100px; /* Prevent from getting too tiny */
+  max-width: 100%; /* Never exceed container width */
+  box-sizing: border-box;
+}
+
+.upper{
+  width: 100%;
+}
+
+/* === First Section === */
+.first-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  
+}
+
+
+.logo img {
+  height: 60px;
+  background-color: white;
+}
+
+.yetay-write {
+  font-size: 24px;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.point {
+  font-size: 16px;
+  margin-left: 5px;
+  vertical-align: sub;
+  background-color: #F3C32F;
+  color: #213E6D;
+  font-weight: bold;
+  width: 30px;
+  border-radius: 2px;
+  text-align: center;
+}
+
+
+
+.menu-bar i {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+
+
+.yetay-detail {
+  display: flex;
+  align-items: flex-end;
+}
+
+.second-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  gap: 20px;
+}
+
+.rounder-text {
+  font-size: 18px;
+  color: #F3C32F;
+  font-weight: bold;
+
+}
+
+.per-score {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  display: none;
+}
+
+#perScore {
+  width: 50px;
+  padding: 5px;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.per-time {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+}
+
+#perTime {
+  width: 50px;
+  padding: 5px;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.key-in i {
+  font-size: 18px;
+  cursor: pointer;
+  color: #F3C32F;
+}
+
+.quiz-timer {
+  display: none; /* shown on trigger */
+  font-size: 18px;
+  color: #F3C32F;
+  font-weight: bold;
+  background-color: #222;
+  padding: 6px 12px;
+  border-radius: 8px;
+  width: fit-content;
+  text-align: center;
+}
+
+.detime {
+  color: white;
+  font-weight: bold;
+}
+
+/* === Question Section === */
+.question-section {
+  margin-top: 30px;
+  position: relative;
+}
+
+
+/* Grid */
+.question-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 10px;
+}
+
+.grid-btn {
+  background-color: #ffffff33;
+  color: #000;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.g-btn{
+  background-color: white;
+  cursor: pointer;
+  color: #213E6D;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* Confirm Button */
+/* Base style for all buttons */
+/* Button container aligned to the right */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap; /* optional: handles small screens */
+}
+
+/* Shared button style */
+/* Group container aligned to the right */
+
+.btn-room{
+  display: flex;
+  justify-content: space-between;
+}
+
+#leader-btn{
+  margin-top: 10px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Shared button style */
+.bot {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: #3a6cf4;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  -webkit-user-select: none; /* Safari */
+  user-select: none;
+}
+
+/* Hover and active states */
+.bot:hover:not(.disabled) {
+  background-color: #2f55c0;
+}
+
+.bot:active:not(.disabled) {
+  transform: scale(0.97);
+}
+
+/* Disabled state */
+.bot.disabled {
+  background-color: #ccc;
+  color: #888;
+  pointer-events: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Hidden by default */
+.hidden {
+  display: none !important;
+}
+
+
+
+/* === Animation: Pulse Placeholder === */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  } 
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+/* =====================
+   Question Card Layout
+===================== */
+.question-card {
+  background: #1d2f4d;
+  border-radius: 16px;
+  padding: 2rem;
+  color: #f5f5f5;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(243, 195, 47, 0.3);
+  margin-bottom: 0.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+/* =====================
+   Question Title & Text
+===================== */
+.question-head {
+  display: flex;
+  align-items: flex-start;  /* keeps the circle aligned with the top of the text */
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;    /* space below each question block */
+}
+
+.question-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 6px 10px;               
+  border-radius: 50%;              
+  background: linear-gradient(145deg, #2e4f8a, #213e6d);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+  flex-shrink: 0;
+
+  min-width: 34px;
+  min-height: 34px;
+
+  border: 2px solid #F3C32F;   /* clean golden outline */
+}
+
+
+.question-text {
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #fff;
+  font-weight: bold;
+  margin: 0;
+}
+
+
+
+/* =====================
+   Options Wrapper
+===================== */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: center;
+  width: 90%;
+  margin: auto;
+}
+
+/* =====================
+   MCQ Options
+===================== */
+.option {
+  background: linear-gradient(145deg, #2e4f8a, #213e6d);
+  border-radius: 10px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  border-left: 5px solid transparent;
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+}
+
+.option-letter {
+  font-weight: bold;
+  color: #F3C32F;
+  flex-shrink: 0;
+  font-size: 1.05rem;
+}
+
+.option-text {
+  flex-grow: 1;
+}
+
+/* Correct Answer Highlight */
+.correct-highlight {
+  border-left: 5px solid #F3C32F;   /* strong highlight */
+  border-top: 1px solid #F3C32F;
+  border-right: 1px solid #F3C32F;
+  border-bottom: 1px solid #F3C32F;
+
+  color: #F3C32F !important;
+  font-weight: 700;
+  border-radius: 10px; /* keep rounded shape consistent */
+}
+
+.correct-highlight .option-letter {
+  color: #fff !important;
+}
+
+/* =====================
+   True/False Options
+===================== */
+.truefalse-options {
+  display: flex;
+  gap: 1.2rem;
+  justify-content: center;
+  width: 90%;
+  margin: auto;
+}
+
+.truefalse-option {
+  flex: 1;
+  text-align: center;
+  background: linear-gradient(145deg, #2e4f8a, #213e6d);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.truefalse-option:hover {
+  background: #385fa8;
+  border-color: #F3C32F;
+}
+
+.truefalse-option.correct-highlight {
+  background: #385fa8;
+  border-top: 1px solid #F3C32F;
+  border-right: 1px solid #F3C32F;
+  border-bottom: 1px solid #F3C32F;
+  border-left: 5px solid #F3C32F;
+  color: #fff !important;
+}
+
+/* =====================
+   Fill-in-the-Gap
+===================== */
+.fill-gap-placeholder {
+  display: inline-block;
+  background: #213e6d;
+  border-radius: 50px;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  font-style: italic;
+  text-align: center;
+  color: #fff;
+  text-decoration: underline;
+  font-weight: bold;
+  border: 2px dashed #F3C32F;
+  margin-top: 0.7rem;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+
+/* =====================
+   Reference Section
+===================== */
+.reference {
+  margin-top: 1.2rem;
+  padding: 0.7rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 4px solid #F3C32F;
+  font-size: 0.95em;
+  color: #eee;
+  line-height: 1.5;
+  animation: fadeIn 0.4s ease;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.reference strong {
+  color: #F3C32F;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(5px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+/* =====================
+   Utility
+===================== */
+.hidden {
+  display: none;
+}
+
+
+.time-up {
+  text-align: center;
+  padding: 2rem;
+  background: #2b2b2b; /* dark background for contrast */
+  border: 2px solid #F3C32F; /* your main accent yellow */
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: none; /* Hidden by default */
+  animation: fadeInScale 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Gaps between rows */
+#scoreboard {
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  display: none; /* Hidden by default */
+  width: 100%;
+  margin: 0 auto;
+}
+
+.table-header {
+  background: #213E6D;
+  color: #F3C32F;
+  font-weight: bold;
+  border-left: 6px solid #F3C32F;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* subtle depth below */
+  z-index: 1;
+}
+
+#scoreboard thead th {
+  padding: 0.4rem;
+  text-align: center;
+}
+
+/* Regular rows */
+.score-row {
+  background: #2e4f8a;
+  color: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.score-row td {
+  padding: 0.4rem;
+  text-align: center;
+}
+
+/* Highlighted participant (JS will toggle this) */
+.score-row.highlighted {
+  background: #2b2b2b; /* dark background for contrast */
+  border: 2px solid #F3C32F; /* your main accent yellow */
+  color: #F3C32F;
+  font-weight: bold;
+  animation: fadeInScale 0.5s ease-in-out forwards;
+}
+
+
+/* Adjuster cell layout */
+.adjuster-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Eye icons */
+.eye-toggle {
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* Tools */
+.tools {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.eye-toggle, .tools span {
+  font-size: 1rem; /* Adjust size here — try 0.9rem or 14px if too large */
+  cursor: pointer;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+
+
+  .g-btn {
+    background-color: white;
+    color: #213E6D;
+  }
+
+  .g-btn.active-grid {
+    background-color: #F3C32F;
+    color: #213E6D;
+  }
+
+  .g-btn.marked-green {
+    background-color: #2b2b2b; /* or #2b2b2b or whatever you want */
+    border: 2px solid #F3C32F;
+    color: white;
+  }
+
+</style>
+</head>
+<body>
+  <div id="online">
+    <div class="sidebar">
+      <p class="yetay2">Yetay 2.0</p>
+      <p class="parthead">Participants</p>
+      <div class="part" id="participant">
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+        <div class="flex-box"></div>
+      </div>
+
+    </div>
+
+    <!-- Modal Menu -->
+    <div class="modal_menu" id="modalMenu">
+      <div class="nav-bar">
+        <button class="close-btn" onclick="closeModal()">✖</button>
+        <a href="admin-welcome.html">welcome</a>
+        <a href="admin-ongoing.html">ongoing</a>
+        <a href="admin-result.html">result</a>
+        <a href="online.html">online</a>
+        <a href="set-time.html">setTime</a>
+        <a href="leaders.html">Leaders</a>
+      </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+      <div class="upper">
+        <div class="first-section">
+
+      
+        <div class="menu-bar" onclick="openModal()">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+          
+          <div class="yetay-detail">
+            <div class="logo">
+              <img src="https://cdn.glitch.global/75a24ea2-773d-456a-8abd-1c76671f333c/yetay_white_logo.png?v=1748084558240" alt="Yetay Logo" />
+            </div>
+            <p class="yetay-write">Yetay Bible Quiz</p>
+            <div class="point">2.0</div>
+          </div>
+          <div class="empty">
+
+          </div>
+        </div>
+
+        <div class="second-section" id="second-section">
+          <div class="rounder">
+            <div class="rounder-text">Round <span class="no" id="roundy"></span></div>
+          </div>
+
+          <div class="per-score" id="perScoreContainer">
+            <label for="perScore">Per score:</label>
+            <input type="text" id="perScore" value="_" title="Score per question" />
+            <div class="key-in">
+                <i class="fa-solid fa-square-check" onclick="perScore()"></i>
+            </div>
+          </div>
+
+          <div class="per-time" id="perTimeContainer">
+            <label for="perTime">Per Time:</label>
+            <input type="text" id="perTime" value="_" title="Time per question" />
+            <div class="key-in">
+                <i class="fa-solid fa-square-check" onclick="perTime()"></i>
+            </div>
+          </div>
+          
+          <div class="quiz-timer" id="quizTimer">Time: <span class="detime">--:--</span></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="question-section">
+        <div class="question-grid" id="question-grid">
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+          <div class="grid-btn"></div>
+        </div>
+        <div class=" quesion-view" id="question-view"></div>
+        <div class="time-up" id="time-up">
+          <h2>Time's Up!</h2>
+        </div>
+
+        <table id="scoreboard">
+          <thead>
+            <tr class="table-header">
+              <th>Name</th>
+              <th>Round 1</th>
+              <th>Round X</th>
+              <th>Total</th>
+              <th>Adjuster</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="score-row" data-participant="0">
+              <td>User 1</td>
+              <td class="round-score">-</td>
+              <td class="round-x">-</td>
+              <td class="total-score">0</td>
+              <td class="adjuster-cell">
+                <span class="eye-toggle open-eye" data-open="false" onclick="toggleTools(this)">👁️</span>
+                <span class="eye-toggle closed-eye" style="display: none;" onclick="toggleTools(this)">🙈</span>
+
+                <div class="tools" style="display: none;">
+                  <span onclick="handlePlay(this)" class="tool-icon">▶️</span>
+                  <span onclick="handlePlus(this)" class="tool-icon">▶</span>
+                  <span onclick="handleMinus(this)" class="tool-icon">◀</span>
+                  <span onclick="handleRewind(this)" class="tool-icon">⏪</span>
+                </div>
+              </td>
+            </tr>
+            <!-- More rows will be added via JS -->
+          </tbody>
+        </table>
+
+        <div class="btn-room" id="btn-room">
+          <div class="bot hidden" id="leader-btn" onclick="handleLeaders()">Leaderboard</div>
+          <div class="emptyspace"></div>
+          <div class="button-group">
+            <div class="bot hidden" id="confirm-btn" onclick="handleConfirm()">Confirm</div>
+            <div class="bot hidden" id="answer-btn" onclick="handleSeeAnswer()">See Answer</div>
+            <div class="bot hidden" id="scoreboard-btn" onclick="showScoreboard()">Scoreboard</div>
+            <div class="bot hidden" id="grid-view" onclick="showGrid()">Grid View</div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+
+<script>
+const scriptURL = "https://script.google.com/macros/s/AKfycbyoL5_Wuef_TKE882CTQfLcBeVpyEThOTA_yVQ9IpayeThqDj3DoA9Vy6wpP8CkWDZ5/exec"; // your script URL here
+const questionContainer = document.getElementById("question-view");
+const gridContainer = document.getElementById("question-grid");
+const confirmBtn = document.getElementById("confirm-btn");
+const answerBtn = document.getElementById("answer-btn");
+const scoreboardBtn = document.getElementById("scoreboard-btn");
+const gridViewBtn = document.getElementById("grid-view");
+let currentQuestionIndex = null;
+let countdownInterval = null;
+let currentParticipant = null;
+let questions = [];
+let participants = [];
+let VperScore = null;
+let VperTime = null;
+let viewTimeup = false;
+let rounding = 5; // Default rounding value
+let currentRound = 1; // Default round
+let currentTotal = 0;
+let currentScore = 0;
+let currentRow = null;
+let currentScoreCells = [];
+let queCount = 0; // Count of questions loaded
+const normalLimit = 50;   // how many questions to show in normal rounds
+const extraLimit  = 30;   // how many questions to show in extra/tiebreak rounds
+const roundSize   = 10;  // per normal round
+
+
+
+async function loadQuestions() {
+  loadParameters();
+
+  const payload = {
+    action: 'getOnlineQuestions',
+    sheetId: "1_si663AVBrE35oiIgiMLepR7wuyyL_fiMmynGx-Vt5I", // Dynamic ID
+    questionSheet: "allType",  // Dynamic sheet for questions
+    participantSheet: "top-ten" // Dynamic sheet for participants
+  };  
+
+  try {
+    const response = await fetch(scriptURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (data.status === 'success') {
+      questions = data.questions;
+      participants = data.participants;
+      await tableCollate()
+      loadParticipants(participants);
+      
+      populateGrid(questions);
+      if (currentRound > rounding) {
+        document.getElementById("leader-btn").classList.remove('hidden')
+      }
+      document.getElementById("roundy").textContent  = currentRound > rounding ? "Extra" : currentRound;
+    // Load hidden question views
+    questionContainer.innerHTML = "";
+
+    // Render questions dynamically
+    questions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.classList.add("question-box");
+      div.id = `question-${i}`;
+      div.style.display = "none"; // hidden initially
+
+      let optionsHTML = "";
+
+      if (q["Type"] === "MCQ") {
+        optionsHTML = `
+          <div class="options">
+            ${['A', 'B', 'C', 'D'].map(letter => `
+              <div class="option">
+                <span class="option-letter">${letter}.</span>
+                <span class="option-text">${q[`Option ${letter}`] || '[Missing]'}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } 
+      else if (q["Type"] === "TrueFalse") {
+        optionsHTML = `
+          <div class="truefalse-options">
+            ${["True", "False"].map(val => `
+              <div class="truefalse-option">
+                <span class="option-text">${val}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+      else if (q["Type"] === "FillGap") {
+        optionsHTML = `
+          <div class="options">
+            <div class="fill-gap-placeholder">_____</div>
+          </div>
+        `;
+      }
+
+      div.innerHTML = `
+        <div class="question-card">
+          <div class="question-head">
+            <p class="question-label">Q${i + 1}</p>
+            <p class="question-text">${q["Question Text"] || '[No Question]'}</p>
+          </div>
+          ${optionsHTML}
+          <div class="reference hidden">
+            <p><strong>Answer:</strong> <span class="answer-text"></span></p>
+            <p><strong>Reference:</strong> <span class="reference-text"></span></p>
+          </div>
+        </div>
+      `;
+
+      questionContainer.appendChild(div);
+    });
+
+    // Show the button
+    } else {
+      alert("Failed to load questions: " + data.message);
+    }
+  } catch (error) {
+    alert("Error fetching questions: " + error.message);
+  }
+}
+
+async function tableCollate() {
+  const scoreboard = document.getElementById("scoreboard");
+  const theadRow = scoreboard.querySelector("thead tr");
+  const tbody = scoreboard.querySelector("tbody");
+
+  // STEP 0: Fetch OTG data from backend
+  const payload = { action: "getOTG" };
+  let OTG = [];
+
+  try {
+    const response = await fetch(scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    if (result.status === "success") {
+      OTG = result.data;
+    } else {
+      console.error("Failed to load OTG:", result.message);
+      return;
+    }
+  } catch (error) {
+    console.error("Fetch error loading OTG:", error);
+    return;
+  }
+
+  // STEP 1: Add additional round columns to header
+  for (let r = 2; r <= rounding; r++) {
+    const th = document.createElement("th");
+    th.className = "round-score";
+    th.textContent = `Round ${r}`;
+    theadRow.insertBefore(th, theadRow.children[theadRow.children.length - 3]);
+  }
+
+  // STEP 2: Use the first row as a template, then remove it
+  const baseRow = tbody.querySelector("tr");
+  const template = baseRow.cloneNode(true);
+  tbody.removeChild(baseRow);
+
+  // STEP 3: Add missing round columns to template if needed
+  const roundScoreTDs = template.querySelectorAll(".round-score");
+  for (let r = roundScoreTDs.length + 1; r <= rounding; r++) {
+    const td = document.createElement("td");
+    td.className = "round-score";
+    td.textContent = "-";
+    template.insertBefore(td, template.children[template.children.length - 3]);
+  }
+
+  // STEP 4: Populate rows from OTG data
+  OTG.forEach((entry, i) => {
+    const [username, ...scores] = entry;
+    const row = template.cloneNode(true);
+    row.dataset.participant = i;
+
+    // Fill name
+    row.querySelector("td").textContent = username;
+
+    // Fill normal round scores
+    const roundCells = row.querySelectorAll(".round-score");
+    for (let r = 0; r < rounding; r++) {
+      const val = scores[r];
+      roundCells[r].textContent = val === "" || val === undefined ? "-" : val;
+    }
+
+    // ⚡️ Fill Round X (cell just before total-score)
+    const roundXCell = row.children[row.children.length - 3];
+    roundXCell.textContent = parseInt(scores[rounding], 10) || 0;
+
+    // Fill total score (after Round X)
+    const totalCell = row.querySelector(".total-score");
+    totalCell.textContent = parseInt(scores[rounding + 1], 10) || 0;
+
+    // Setup eye toggle
+    const eyeIcon = row.querySelector(".eye-toggle");
+    eyeIcon.textContent = "👁️";
+    eyeIcon.dataset.open = "false";
+
+    tbody.appendChild(row);
+  });
+
+  // STEP 5: Eye toggle logic is handled by the `toggleTools` function called via onclick attributes in the HTML.
+
+  // ✅ STEP 6: Determine & set currentRound, currentParticipant, queCount
+  currentRound = null;
+  currentParticipant = null;
+  queCount = null;
+
+  const participantRows = [...tbody.querySelectorAll("tr")];
+  let found = false;
+
+  for (let r = 1; r <= rounding; r++) {
+    for (let i = 0; i < participantRows.length; i++) {
+      const row = participantRows[i];
+      const cells = row.querySelectorAll("td");
+      const roundCell = cells[r];
+
+      if (roundCell && roundCell.textContent.trim() === "-") {
+        currentRound = r;
+        currentParticipant = cells[0].textContent.trim();
+        queCount = i;
+        found = true;
+        break;
+      }
+    }
+    if (found) break;
+  }
+
+  // 🔁 All rounds are filled
+  if (!found) {
+    currentRound = rounding + 1;
+    const firstRow = participantRows[0];
+    currentParticipant = firstRow?.querySelector("td")?.textContent.trim() || null;
+    queCount = 0;
+  }
+
+  console.log({ currentRound, currentParticipant, queCount, rounding });
+}
+
+
+function loadParticipants(participants) {
+  const partBox = document.getElementById("participant"); // adjust ID if needed
+  partBox.innerHTML = ""; // clear previous
+
+  participants.forEach((p) => {
+    const div = document.createElement("div");
+    div.className = "f-box";
+    div.textContent = p;
+
+    // Highlight currentParticipant if matched
+    if (p === currentParticipant) {
+      div.classList.add("current-participant");
+    }
+
+    partBox.appendChild(div);
+  });
+}
+
+
+function highlightCurrentParticipantRow() {
+  const table = document.getElementById("scoreboard");
+  const rows = table.querySelectorAll("tbody tr");
+
+  rows.forEach(row => {
+    // Remove previous highlight
+    row.classList.remove("highlighted");
+
+    // Reset tools + eyes
+    const adjusterCell = row.querySelector(".adjuster-cell");
+    if (adjusterCell) {
+      const tools = adjusterCell.querySelector(".tools");
+      const openEye = adjusterCell.querySelector(".open-eye");
+      const closedEye = adjusterCell.querySelector(".closed-eye");
+
+      if (tools) tools.style.display = "none";
+      if (openEye) {
+        openEye.style.display = "inline-block";
+        openEye.dataset.open = "false";
+      }
+      if (closedEye) closedEye.style.display = "none";
+    }
+  });
+
+  // Highlight active participant row
+  rows.forEach(row => {
+    const firstCell = row.querySelector("td");
+    if (firstCell && firstCell.textContent.trim() === currentParticipant) {
+      row.classList.add("highlighted");
+
+      // Open tools for this row
+      const adjusterCell = row.querySelector(".adjuster-cell");
+      if (adjusterCell) {
+        const tools = adjusterCell.querySelector(".tools");
+        const openEye = adjusterCell.querySelector(".open-eye");
+        const closedEye = adjusterCell.querySelector(".closed-eye");
+
+        if (tools) tools.style.display = "flex";
+        if (openEye) openEye.style.display = "none";
+        if (closedEye) closedEye.style.display = "inline-block";
+
+        openEye.dataset.open = "true";
+        closedEye.dataset.open = "true";
+      }
+    }
+  });
+}
+
+
+function moveToNextParticipant() {
+  const boxes = document.querySelectorAll("#participant .f-box");
+  const currentIndex = Array.from(boxes).findIndex(
+    box => box.classList.contains("current-participant")
+  );
+
+  // Remove current highlight
+  if (currentIndex !== -1) {
+    boxes[currentIndex].classList.remove("current-participant");
+  }
+
+  // Calculate next index with wrap-around
+  const nextIndex = (currentIndex + 1) % boxes.length;
+
+  // Highlight next participant
+  boxes[nextIndex].classList.add("current-participant");
+
+  // Update global currentParticipant
+  currentParticipant = boxes[nextIndex].textContent;
+}
+
+
+function populateGrid(questions) {
+  gridContainer.innerHTML = "";
+  questionContainer.style.display = 'none'; // Hide question container initially
+  confirmBtn.classList.remove('hidden');
+  confirmBtn.classList.add('disabled');
+
+  // 🔑 Decide slice boundaries dynamically
+  let startIndex = 0;
+  let endIndex = normalLimit;
+
+  if (currentRound > rounding) {
+    startIndex = Math.max(questions.length - extraLimit, 0);
+    endIndex = questions.length;
+  }
+
+  const gridQuestions = questions.slice(startIndex, endIndex);
+
+  gridQuestions.forEach((q, idx) => {
+    const actualIndex = startIndex + idx; // map to full list index
+
+    const gridBtn = document.createElement("div");
+    gridBtn.className = "g-btn";
+    gridBtn.setAttribute('role', 'button');
+    gridBtn.setAttribute('tabindex', '0');
+    gridBtn.textContent = actualIndex + 1; // keep numbering consistent
+    gridBtn.dataset.index = actualIndex;
+
+    if (q.Picked_Ans) {
+      gridBtn.onclick = () => {
+        currentQuestionIndex = actualIndex;
+        confirmBtn.classList.add('disabled'); 
+        resetUnmarkedGrids(actualIndex);
+      };
+    } else {
+      gridBtn.onclick = () => {
+        activateGrid(actualIndex);
+      };
+    }
+
+    gridContainer.appendChild(gridBtn);
+
+    if (q.Picked_Ans) {
+      markedGrid(actualIndex); // mark green if answered
+    }
+  });
+}
+
+
+function activateGrid(index) {
+  // Reset only buttons that are NOT marked green
+  document.querySelectorAll(".g-btn").forEach((btn) => {
+    const isMarked = btn.classList.contains("marked-green");
+    if (!isMarked && parseInt(btn.dataset.index, 10) !== index) {
+      btn.classList.remove("active-grid");
+    }
+  });
+
+  const btn = gridContainer.querySelector(`.g-btn[data-index="${index}"]`);
+  if (!btn) return; // safeguard
+  btn.classList.add("active-grid");
+  currentQuestionIndex = index;
+  confirmBtn.classList.remove("disabled");
+}
+
+
+
+
+function markedGrid(index) {
+  const btn = gridContainer.querySelector(`.g-btn[data-index="${index}"]`);
+  if (!btn) return; // safeguard
+  btn.classList.add("marked-green");
+  btn.classList.remove("active-grid"); // in case it's active
+
+  btn.onclick = () => {
+    currentQuestionIndex = index;
+    confirmBtn.classList.add("disabled");
+    resetUnmarkedGrids(index);
+  };
+}
+
+
+function resetUnmarkedGrids(activeIndex) {
+  document.querySelectorAll(".g-btn").forEach((btn) => {
+    const idx = parseInt(btn.dataset.index, 10);
+    if (!btn.classList.contains("marked-green") && idx !== activeIndex) {
+      btn.classList.remove("active-grid");
+    }
+  });
+}
+
+
+
+async function handleConfirm() {
+  // 1. Update UI for question view
+  viewTimeup = true;
+  gridContainer.style.display = "none";
+  questionContainer.style.display = "block";
+  document.getElementById("leader-btn").classList.add('hidden')
+  // 2. Start the countdown timer
+  startCountdown(VperTime);
+
+  // 3. Get current question and mark it as picked
+  const currentQuestion = questions[currentQuestionIndex];
+  markedGrid(currentQuestionIndex);
+  
+  // 4. Show the specific question card
+  const currentBox = document.getElementById(`question-${currentQuestionIndex}`);
+  if (currentBox) {
+    currentBox.style.display = "block";
+  }
+  
+  // 5. Update local state
+  currentQuestion.Picked_Ans = "yes";
+  
+  // 6. Toggle action buttons
+  confirmBtn.classList.add('hidden');
+  answerBtn.classList.remove('hidden');
+  const payload = {
+        action: 'updatePickedAns',
+        questionId: currentQuestion['Question ID'],
+        pickedAns: "yes",
+        sheetName: 'allType'
+  };
+  // 7. Save picked answer to the backend
+  try {
+    const updateResponse = await fetch(scriptURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: JSON.stringify(payload)
+    });
+
+    const updateData = await updateResponse.json();
+
+    if (updateData.status != 'success') {
+        alert('Failed to update picked answer: ' + updateData.message);
+    } 
+  } catch (error) {
+    alert('Error updating picked answer: ' + error.message);
+  }
+
+}
+
+  // SEE ANSWER HANDLER
+  function handleSeeAnswer() {
+    const box = document.getElementById(`question-${currentQuestionIndex}`);
+    viewTimeup = false;
+    if (!box) return;
+
+    document.getElementById("time-up").style.display = "none";
+    document.getElementById("leader-btn").classList.add('hidden');
+    questionContainer.style.display = "block";
+
+    const currentQuestion = questions[currentQuestionIndex];
+    const correctAnswer = currentQuestion["Correct Answer"];
+    const referenceText = currentQuestion["Reference"] || "No reference provided.";
+
+    // Reset all highlights
+    box.querySelectorAll('.option').forEach(option => {
+      option.classList.remove('correct-highlight');
+    });
+
+    // Handle by type
+    if (currentQuestion["Type"] === "MCQ") {
+      const correctOption = [...box.querySelectorAll('.option')].find(option => {
+        const letter = option.querySelector('.option-letter')?.textContent?.trim().charAt(0);
+        return letter === correctAnswer;
+      });
+      if (correctOption) correctOption.classList.add('correct-highlight');
+
+      box.querySelector(".answer-text").textContent = correctAnswer;
+      box.querySelector(".reference-text").textContent = referenceText;
+    } 
+    else if (currentQuestion["Type"] === "TrueFalse") {
+      const correctOption = [...box.querySelectorAll('.truefalse-option')].find(option => {
+        const text = (option.querySelector('.option-text')?.textContent?.trim() || "").toLowerCase();
+        return text === String(correctAnswer).toLowerCase();
+      });
+
+      if (correctOption) correctOption.classList.add('correct-highlight');
+     
+      box.querySelector(".answer-text").textContent = correctAnswer;
+      box.querySelector(".reference-text").textContent = referenceText;
+    } 
+    else if (currentQuestion["Type"] === "FillGap") {
+      // Just show the missing word/phrase and reference
+      box.querySelector(".fill-gap-placeholder").textContent = correctAnswer;
+      box.querySelector(".answer-text").textContent = correctAnswer;
+      box.querySelector(".reference-text").textContent = referenceText;
+    }
+
+    // Reveal answer/reference block
+    box.querySelector(".reference").classList.remove("hidden");
+
+    // Hide "See Answer" button
+    document.getElementById('answer-btn')?.classList.add('hidden');
+
+    // Show scoreboard controls
+    document.getElementById('scoreboard-btn')?.classList.remove('hidden');
+
+    document.getElementById("quizTimer").style.display = "none";
+    document.getElementById("perScoreContainer").style.display = "flex"; 
+    document.getElementById("perTimeContainer").style.display = "none"; 
+  }
+
+
+function showScoreboard() {
+  document.getElementById("leader-btn").classList.add('hidden')
+  const currentBox = document.getElementById(`question-${currentQuestionIndex}`);
+  if (currentBox) {
+    currentBox.style.display = "none";
+  }
+
+  questionContainer.style.display = "none";
+  highlightCurrentParticipantRow()
+  const scoreboardContainer = document.getElementById("scoreboard");
+  scoreboardContainer.style.display = "table";
+
+  
+
+
+  document.getElementById("second-section").style.display = "none"; // Hide second section
+  // Hide See Answer button
+  document.getElementById('scoreboard-btn')?.classList.add('hidden');
+
+  // Show Scoreboard & Grid buttons
+  document.getElementById('grid-view')?.classList.remove('hidden');
+
+  document.getElementById('grid-view')?.classList.add('disabled');
+}
+
+
+
+
+
+function showGrid() {
+
+  queCount += 1;
+  if (queCount === participants.length) {
+    queCount = 0;
+    currentRound += 1;
+    populateGrid(questions);
+  }
+
+  if (currentRound > rounding) {
+    document.getElementById("leader-btn").classList.remove('hidden')
+  }
+
+
+  document.getElementById("roundy").textContent  = currentRound > rounding ? "Extra" : currentRound;
+  const scoreboardContainer = document.getElementById("scoreboard");
+  scoreboardContainer.style.display = "none";
+  gridContainer.style.display = "grid";
+
+  gridViewBtn.classList.add('hidden');
+
+  confirmBtn.classList.remove('hidden');
+  confirmBtn.classList.add('disabled');
+
+  document.getElementById("second-section").style.display = "flex";
+  document.getElementById("quizTimer").style.display = "none";
+  document.getElementById("perTimeContainer").style.display = "flex"; // Hide input field
+  document.getElementById("perScoreContainer").style.display = "none"; // Hide input field
+  
+  moveToNextParticipant(); // Move to next participant
+
+  currentQuestionIndex = null;
+
+
+}
+
+
+async function perScore() {
+  const value = document.getElementById("perScore").value;
+
+  document.getElementById("quizTimer").style.display = "none";
+  document.getElementById("perTimeContainer").style.display = "flex"; // Hide input field
+  document.getElementById("perScoreContainer").style.display = "none"; // Hide input field
+
+  const payload = {
+    action: "sheetWrite",
+    columnName: "perScore",
+    value: value
+  };
+  VperScore = value; // Update global variable
+  try {
+    const response = await fetch(scriptURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (result.status === "success") {
+      console.log("perScore saved:", result);
+    } else {
+      console.error("Failed to save perScore:", result.message);
+    }
+  } catch (error) {
+    console.error("Error saving perScore:", error);
+  }
+}
+
+async function perTime() {
+  const value = document.getElementById("perTime").value;
+
+  document.getElementById("quizTimer").style.display = "none";
+  document.getElementById("perTimeContainer").style.display = "none"; // Hide input field
+  document.getElementById("perScoreContainer").style.display = "flex"; // Hide input field
+  
+  const payload = {
+    action: "sheetWrite",
+    columnName: "perTime",
+    value: value
+  };
+  VperTime = value;
+  try {
+    const response = await fetch(scriptURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (result.status === "success") {
+      console.log("perTimer saved:", result);
+    } else {
+      console.error("Failed to save perTimer:", result.message);
+    }
+  } catch (error) {
+    console.error("Error saving perTimer:", error);
+  }
+}
+
+async function loadParameters() {
+  const payload = { action: "getParameters" };
+  try {
+    const response = await fetch(scriptURL, {
+      method: "POST",
+      headers: { "Content-Type": 'application/x-www-form-urlencoded'},
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json();
+    if (result.status === "success") {
+      const data = result.data;
+      console.log("Loaded parameters:", data);
+      document.getElementById("perScore").value = data.perScore;
+      document.getElementById("perTime").value = data.perTime;
+      VperScore = data.perScore;
+      VperTime = data.perTime;
+    } else {
+      console.error("Error loading parameters:", result.message);
+    }
+  } catch (err) {
+    console.error("Fetch error loading parameters:", err);
+  }
+}
+
+function handleLeaders() {
+  window.location.href = "leaders.html";
+}
+
+function startCountdown(durationMinutes) {
+  const timerDisplay = document.getElementById("quizTimer");
+  const timeSpan = timerDisplay.querySelector(".detime");
+  let timeLeft = durationMinutes * 60; // Convert to seconds
+
+  if (countdownInterval) clearInterval(countdownInterval); // Clear old timer if any
+
+  // Show timer
+  timerDisplay.style.display = "block";
+  document.getElementById("perScoreContainer").style.display = "none"; // Hide input field
+  document.getElementById("perTimeContainer").style.display = "none"; // Hide input field
+
+  // Update every second
+  countdownInterval = setInterval(() => {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+
+    timeSpan.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    if (timeLeft <= 0) {
+      clearInterval(countdownInterval);
+      timeSpan.textContent = "00:00";
+      onCountdownEnd();
+    }
+
+    timeLeft--;
+  }, 1000);
+}
+
+function toggleTools(eyeIcon) {
+  const adjusterCell = eyeIcon.closest('.adjuster-cell');
+  const openEye = adjusterCell.querySelector('.open-eye');
+  const closedEye = adjusterCell.querySelector('.closed-eye');
+  const toolsDiv = adjusterCell.querySelector('.tools');
+
+  const isOpen = eyeIcon.dataset.open === "true";
+
+  if (isOpen) {
+    // Hide tools, show closed eye
+    toolsDiv.style.display = "none";
+    openEye.style.display = "inline-block";
+    closedEye.style.display = "none";
+
+    openEye.dataset.open = "false";
+    closedEye.dataset.open = "false";
+  } else {
+    // Show tools, show open eye
+    toolsDiv.style.display = "flex";
+    openEye.style.display = "none";
+    closedEye.style.display = "inline-block";
+
+    openEye.dataset.open = "true";
+    closedEye.dataset.open = "true";
+  }
+}
+
+
+
+function setRowContext(tool) {
+  currentRow = tool.closest("tr");
+  const allCells = currentRow.querySelectorAll("td");
+
+  const roundCell = (currentRound <= rounding)
+    ? allCells[currentRound]
+    : allCells[allCells.length - 3]; // fallback for totals
+
+  const totalCell = currentRow.querySelector(".total-score");
+
+  const rawScore = roundCell.textContent;
+  currentScore = rawScore === "-" ? null : parseInt(rawScore, 10);
+  currentTotal = parseInt(totalCell.textContent, 10) || 0;
+
+  return { roundCell, totalCell };
+}
+
+
+
+function handlePlay(tool) {
+  const { roundCell, totalCell } = setRowContext(tool);
+
+  if (currentRound <= rounding) {
+    // Already played (score not null)
+    if (currentScore !== null) {
+      sendScoreUpdate(currentRow.rowIndex, currentRound, currentScore, currentTotal);
+      hideTools();
+      return;
+    }
+
+    // First time assigning score
+    currentScore = VperScore;
+    roundCell.textContent = currentScore;
+
+    currentTotal += VperScore;
+    totalCell.textContent = currentTotal;
+
+    sendScoreUpdate(currentRow.rowIndex, currentRound, currentScore, currentTotal);
+  } else {
+    sendScoreUpdate(currentRow.rowIndex, rounding + 1, currentScore, currentTotal);
+  }
+
+  hideTools();
+}
+
+
+function handlePlus(tool) {
+  const { roundCell, totalCell } = setRowContext(tool);
+
+  if (currentScore === null) {
+    // If unplayed, treat as starting from 0
+    currentScore = 0;
+  }
+
+  currentScore += 1;
+  roundCell.textContent = currentScore;
+
+  currentTotal += 1;
+  totalCell.textContent = currentTotal;
+
+  sendScoreUpdate(currentRow.rowIndex, currentRound, currentScore, currentTotal);
+}
+
+
+function handleMinus(tool) {
+  const { roundCell, totalCell } = setRowContext(tool);
+
+  if (currentScore === null) {
+    return;
+  }
+
+  if (currentScore > 0) {
+    currentScore -= 1;
+    roundCell.textContent = currentScore;
+
+    currentTotal -= 1;
+    totalCell.textContent = currentTotal;
+  }
+
+  sendScoreUpdate(currentRow.rowIndex, currentRound, currentScore, currentTotal);
+}
+
+
+function handleRewind(tool) {
+  const { roundCell, totalCell } = setRowContext(tool);
+  if (currentRound <= rounding) {
+    if (currentScore === null) {
+      currentScore = 0;
+      roundCell.textContent = currentScore;
+      sendScoreUpdate(currentRow.rowIndex, currentRound, currentScore, currentTotal);
+
+    } else {
+      currentTotal = currentTotal - currentScore;
+      currentScore = 0;
+      roundCell.textContent = currentScore;
+      totalCell.textContent = currentTotal;
+      // Send update for both round and total
+      sendScoreUpdate(currentRow.rowIndex, currentRound, currentScore, currentTotal);
+    }
+  }
+
+  else {
+    sendScoreUpdate(currentRow.rowIndex, currentRound, currentScore, currentTotal);
+  }
+
+  hideTools();
+}
+
+
+
+async function sendScoreUpdate(rowIndex, roundIndex, roundScore, totalScore) {
+  const payload = {
+    action: "updateOTGScore",
+    row: rowIndex + 1, // +2 since Sheets are 1-indexed and row 1 is header
+    roundCol: roundIndex + 1,
+    roundScore,
+    totalCol: currentRow.cells.length - 1,
+    totalScore
+  };
+
+  try {
+    const response = await fetch(scriptURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const result = await response.json();
+    if (result.status === "success") {
+      console.log("Score update successful");
+    } else {
+      console.warn("Backend returned non-success status", result);
+    }
+  } catch (error) {
+    console.error("Score update failed", error);
+  }
+}
+
+
+
+function hideTools() {
+  document.getElementById('grid-view')?.classList.remove('disabled');
+  const adjusterCell = currentRow.querySelector(".adjuster-cell");
+  if (adjusterCell) {
+    const tools = adjusterCell.querySelector(".tools");
+    const openEye = adjusterCell.querySelector(".open-eye");
+    const closedEye = adjusterCell.querySelector(".closed-eye");
+
+    if (tools) tools.style.display = "none";
+    if (openEye) openEye.style.display = "inline-block";
+    if (closedEye) closedEye.style.display = "none";
+
+    openEye.dataset.open = "false";
+    closedEye.dataset.open = "false";
+  }
+}
+
+function openModal() {
+  document.getElementById("modalMenu").style.display = "flex";
+  document.getElementById("mainContent").style.display = "none";
+}
+
+function closeModal() {
+  document.getElementById("modalMenu").style.display = "none";
+  document.getElementById("mainContent").style.display = "flex";
+}
+
+// Action when countdown finishes
+function onCountdownEnd() {
+  if (viewTimeup) {
+    document.getElementById("time-up").style.display = "block";
+    questionContainer.style.display = "none";
+  }
+}
+
+  // Load questions on page load
+  window.onload = loadQuestions;
+</script>
+</body>
+</html>

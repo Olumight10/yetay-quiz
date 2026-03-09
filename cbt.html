@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #00c6ff, #0072ff);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 360px;
+      animation: slideUp 0.6s ease;
+      display: none;
+    }
+
+    .login-box h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #0072ff;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #0072ff;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #0072ff;
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0057cc;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .message {
+      color: white;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 20px;
+      max-width: 400px;
+      background-color: rgba(0, 0, 0, 0.25);
+      border-radius: 12px;
+    }
+
+    .quiz-timer {
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      color: white;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .error-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      display: none;
+    }
+
+    .error-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 400px;
+      text-align: center;
+      position: relative;
+    }
+
+    .error-content h3 {
+      margin-top: 0;
+      color: #d33;
+    }
+
+    .error-content p {
+      color: #333;
+      font-size: 16px;
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ended-message {
+      text-align: center;
+      color: red;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-timer" id="quizTimer">Quiz ends in: --:--</div>
+
+  <div class="message" id="countdownMessage">⏳ Checking quiz start time...</div>
+
+  <div class="login-box" id="loginBox">
+    <h2>Quiz Login</h2>
+    <div id="endedMessage" class="ended-message" style="display: none;">⚠️ Quiz has ended.</div>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit" id="loadBtn">Login</button>
+    </form>
+  </div>
+
+  <div class="error-modal" id="errorModal">
+    <div class="error-content">
+      <h3 id="errorTitle">⚠️ Error</h3>
+      <p id="errorMessage">An error occurred.</p>
+    </div>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyoL5_Wuef_TKE882CTQfLcBeVpyEThOTA_yVQ9IpayeThqDj3DoA9Vy6wpP8CkWDZ5/exec";
+    const loginBox = document.getElementById("loginBox");
+    const messageBox = document.getElementById("countdownMessage");
+    const quizTimer = document.getElementById("quizTimer");
+    const errorModal = document.getElementById("errorModal");
+    const errorTitle = document.getElementById("errorTitle");
+    const errorMessage = document.getElementById("errorMessage");
+    const endedMessage = document.getElementById("endedMessage");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const loadBtn = document.getElementById("loadBtn");
+
+
+
+    async function checkQuizStart() {
+      try {
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: JSON.stringify({ action: "getQuizTime" })
+        });
+        const result = await response.json();
+        if (result.status === "success") {
+          const { timestamp, start, end } = result.time;
+          const refTime = new Date(timestamp);
+          const startTime = new Date(refTime.getTime() + start * 60000);
+          const endTime = new Date(refTime.getTime() + end * 60000);
+          const now = new Date();
+
+          if (now >= endTime) {
+            // Quiz already ended
+            loginBox.style.display = "block";
+            endedMessage.style.display = "block";
+            usernameInput.disabled = true;
+            passwordInput.disabled = true;
+            loadBtn.disabled = true;
+            messageBox.style.display = "none";
+          } else {
+            countdownToStart(startTime, endTime);
+          }
+        } else {
+          showError("Server Error", "⚠️ Failed to get quiz time.");
+        }
+      } catch (err) {
+        if (!navigator.onLine) {
+          showError("No Internet", "⚠️ Please check your internet connection.");
+          monitorNetworkStatus();
+        } else {
+          showError("Fetch Error", err.message);
+        }
+      }
+    }
+
+    function countdownToStart(startTime, endTime) {
+      const interval = setInterval(() => {
+        const now = new Date();
+        const msLeft = startTime - now;
+
+        if (msLeft <= 0) {
+          clearInterval(interval);
+          messageBox.style.display = "none";
+          loginBox.style.display = "block";
+          startEndCountdown(endTime);
+        } else {
+          const mins = Math.floor(msLeft / 60000);
+          const secs = Math.floor((msLeft % 60000) / 1000);
+          messageBox.innerHTML = `⏳ Quiz will start shortly in ${mins}m ${secs}s.`;
+        }
+      }, 1000);
+    }
+
+    function startEndCountdown(endTime) {
+      quizTimer.style.display = "block";
+      const interval = setInterval(() => {
+        const now = new Date();
+        const msLeft = endTime - now;
+
+        if (msLeft <= 0) {
+          clearInterval(interval);
+          quizTimer.textContent = "⏱ Quiz has ended.";
+          usernameInput.disabled = true;
+          passwordInput.disabled = true;
+          loadBtn.disabled = true;
+          endedMessage.style.display = "block";
+        } else {
+          const mins = Math.floor(msLeft / 60000);
+          const secs = Math.floor((msLeft % 60000) / 1000);
+          quizTimer.textContent = `⏱ Quiz ends in: ${mins}m ${secs}s`;
+        }
+      }, 1000);
+    }
+
+    function showError(title, message) {
+      errorTitle.textContent = title;
+      errorMessage.textContent = message;
+      errorModal.style.display = "flex";
+    }
+
+    function monitorNetworkStatus() {
+      const interval = setInterval(() => {
+        if (navigator.onLine) {
+          errorTitle.textContent = "✅ Back Online";
+          errorMessage.textContent = "Internet connection restored.";
+          setTimeout(() => errorModal.style.display = "none", 2000);
+          clearInterval(interval);
+          location.reload(); // Reload to check quiz status again
+        }
+      }, 2000);
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const username = usernameInput.value;
+      const password = passwordInput.value;
+
+      loadBtn.disabled = true;
+      loadBtn.textContent = 'loading ...';
+
+      try {
+        const response = await fetch(scriptURL, {
+          method: 'POST',
+          body: JSON.stringify({ action: "login", username, password }),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+
+        const result = await response.json();
+        if (result.status === "success") {
+          localStorage.setItem("quizUser", username);
+          window.location.href = "cbt-dashboard.html";
+        } else {
+          alert("Invalid credentials.");
+          loadBtn.disabled = false;
+          loadBtn.textContent = 'Login';
+        }
+      } catch (err) {
+
+        if (!navigator.onLine) {
+          showError("No Internet", "⚠️ Please check your internet connection.");
+          monitorNetworkStatus();
+        } else {
+          showError("Login Error", err.message);
+          loadBtn.disabled = false;
+          loadBtn.textContent = 'Login';
+        }
+      }
+    });
+
+
+
+    window.onload = checkQuizStart;
+  </script>
+
+</body>
+</html>

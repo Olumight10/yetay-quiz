@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f9;
+    }
+    .admin-link a {
+      margin-right: 10px;
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #4CAF50;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+    .centered {
+      text-align: center;
+      font-weight: bold;
+      color: red;
+      font-size: 18px;
+      padding: 20px 0;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #liveStatus {
+      text-align: center;
+      font-weight: bold;
+      color: black;
+      padding: 10px 0;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-link">
+    <a href="admin-welcome.html">welcome</a>
+    <a href="admin-ongoing.html">ongoing</a>
+    <a href="admin-result.html">result</a>
+    <a href="online.html">online</a>
+    <a href="set-time.html">setTime</a>
+    <a href="leaders.html">Leaders</a>
+  </div>
+
+  <h2>Admin Dashboard</h2>
+
+  <div id="liveStatus"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Attempt</th>
+        <th>Percentage completion</th>
+      </tr>
+    </thead>
+    <tbody id="resultsTable">
+      <tr><td colspan="3" style="text-align:center;">Loading...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyoL5_Wuef_TKE882CTQfLcBeVpyEThOTA_yVQ9IpayeThqDj3DoA9Vy6wpP8CkWDZ5/exec";
+    let intervalId = null;
+    let countdownInterval = null;
+    let timeElapsed = false;
+
+    async function loadStats() {
+      if (timeElapsed) return;
+
+      try {
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: JSON.stringify({ action: "getUserStats" })
+        });
+
+        const data = await response.json();
+        const table = document.getElementById("resultsTable");
+        table.innerHTML = "";
+
+        if (data.status === "success") {
+          const sortedStats = data.stats.map(stat => {
+            const percent = (stat.attempt / stat.all) * 100;
+            return { ...stat, percent };
+          }).sort((a, b) => b.percent - a.percent);
+
+          sortedStats.forEach(stat => {
+            table.innerHTML += `
+              <tr>
+                <td>${stat.user}</td>
+                <td>${stat.attempt}</td>
+                <td>${Math.round(stat.percent)}%</td>
+              </tr>
+            `;
+          });
+        } else {
+          table.innerHTML = `<tr><td colspan="3">Error: ${data.message}</td></tr>`;
+        }
+      } catch (err) {
+        console.error("Error loading stats:", err);
+      }
+    }
+
+    async function checkTimeAndMaybeStop() {
+      try {
+        const response = await fetch(scriptURL, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: JSON.stringify({ action: "getQuizTime" })
+        });
+
+        const result = await response.json();
+        if (result.status !== "success") return;
+
+        const { timestamp, start, end } = result.time;
+        const startTime = new Date(timestamp);
+        const endTime = new Date(timestamp);
+
+        startTime.setMinutes(startTime.getMinutes() + Number(start));
+        endTime.setMinutes(endTime.getMinutes() + Number(end));
+
+        const now = new Date();
+
+        if (now < startTime) {
+          const msUntilStart = startTime - now;
+          showCountdownToStart(msUntilStart);
+        } else if (now >= startTime && now <= endTime) {
+          const msUntilEnd = endTime - now;
+          showCountdownToEnd(msUntilEnd);
+          loadStats();
+        } else {
+          timeElapsed = true;
+          stopAutoRefresh();
+          showTimeElapsedMessage();
+        }
+      } catch (err) {
+        console.error("Error checking time:", err);
+      }
+    }
+
+    function showCountdownToStart(msUntilStart) {
+      const table = document.getElementById("resultsTable");
+      const minsLeft = Math.ceil(msUntilStart / 60000);
+
+      table.innerHTML = `
+        <tr>
+          <td colspan="3" class="centered">
+            ⏳ Quiz has not started yet.<br>
+            Starts in ${minsLeft} minute${minsLeft === 1 ? '' : 's'}.
+            <div id="countdownTimer" style="margin-top: 10px; color: black; font-weight: normal;"></div>
+          </td>
+        </tr>
+      `;
+
+      updateCountdownDisplay(msUntilStart, "Quiz starts in");
+
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        msUntilStart -= 1000;
+        if (msUntilStart <= 0) {
+          clearInterval(countdownInterval);
+          checkTimeAndMaybeStop();
+        } else {
+          updateCountdownDisplay(msUntilStart, "Quiz starts in");
+        }
+      }, 1000);
+    }
+
+    function showCountdownToEnd(msUntilEnd) {
+      const statusBox = document.getElementById("liveStatus");
+      updateCountdownDisplay(msUntilEnd, "Quiz ends in", statusBox);
+
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        msUntilEnd -= 1000;
+        if (msUntilEnd <= 0) {
+          clearInterval(countdownInterval);
+          checkTimeAndMaybeStop();
+        } else {
+          updateCountdownDisplay(msUntilEnd, "Quiz ends in", statusBox);
+        }
+      }, 1000);
+    }
+
+    function updateCountdownDisplay(ms, label, container = document.getElementById("countdownTimer")) {
+      const mins = Math.floor(ms / 60000);
+      const secs = Math.floor((ms % 60000) / 1000);
+      if (container) {
+        container.textContent = `${label}: ${mins}m ${secs}s`;
+      }
+    }
+
+    function showTimeElapsedMessage() {
+      const table = document.getElementById("resultsTable");
+      document.getElementById("liveStatus").innerHTML = "";
+      table.innerHTML = `
+        <tr>
+          <td colspan="3" class="centered">
+            ⏰ The exam time has elapsed.
+            <div><button class="btn" onclick="window.location.href='admin-result.html'">See Result</button></div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function startAutoRefresh() {
+      if (!intervalId && !timeElapsed) {
+        intervalId = setInterval(() => {
+          checkTimeAndMaybeStop();
+        }, 5000);
+      }
+    }
+
+    function stopAutoRefresh() {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        if (!timeElapsed) {
+          checkTimeAndMaybeStop();
+          startAutoRefresh();
+        }
+      } else {
+        stopAutoRefresh();
+      }
+    });
+
+    window.onload = () => {
+      checkTimeAndMaybeStop();
+      startAutoRefresh();
+    };
+  </script>
+</body>
+</html>

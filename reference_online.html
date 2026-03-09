@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Online Quiz</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f4f4f9;
+  }
+  .nav-bar {
+    margin-bottom: 20px;
+  }
+  .nav-bar a {
+    margin-right: 15px;
+    text-decoration: none;
+    color: #4CAF50;
+    font-weight: bold;
+  }
+
+  /* Grid of circles */
+  #questionGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(50px,1fr));
+    gap: 15px;
+    max-width: 600px;
+    margin-bottom: 30px;
+  }
+  .circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ddd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    font-weight: bold;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+  .circle.picked {
+    background: #e74c3c; /* red */
+    color: white;
+    cursor: not-allowed;
+  }
+  .circle:hover:not(.picked) {
+    background: #4caf50;
+    color: white;
+  }
+
+  /* Question container */
+  #questionContainer {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    max-width: 600px;
+  }
+  #questionText {
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  .options label {
+    display: block;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  input[type="radio"] {
+    margin-right: 8px;
+  }
+
+  /* Correct/incorrect highlight */
+  .correct {
+    color: green;
+    font-weight: bold;
+  }
+  .incorrect {
+    color: red;
+    font-weight: bold;
+  }
+
+  /* Buttons */
+  .btn {
+    margin-top: 20px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  #confirmBtn {
+    background-color: #4caf50;
+    color: white;
+  }
+  #confirmBtn:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+  }
+  #backBtn {
+    background-color: #ccc;
+    color: #333;
+    margin-left: 10px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="nav-bar">
+    <a href="admin-welcome.html">Welcome</a>
+    <a href="admin-ongoing.html" >ongoing</a>
+    <a href="admin-result.html">Result</a>
+    <a href="online.html">Online Exam</a>
+    <a href="set-time.html"> setTime</a> <!-- ✅ New link added -->
+  </div>
+
+  <h2>Online Quiz - Pick a Question</h2>
+
+  <!-- Grid of circles -->
+  <div id="questionGrid"></div>
+
+  <!-- Question and options -->
+  <div id="questionContainer" style="display:none;">
+    <div id="questionText"></div>
+    <form id="optionsForm">
+      <div class="options"></div>
+    </form>
+    <button id="confirmBtn" class="btn" disabled>Confirm Answer</button>
+    <button id="backBtn" class="btn">Back to Questions</button>
+  </div>
+
+<script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbyoL5_Wuef_TKE882CTQfLcBeVpyEThOTA_yVQ9IpayeThqDj3DoA9Vy6wpP8CkWDZ5/exec"; // your script URL here
+
+  let questions = [];
+  let currentQuestion = null;
+  let selectedAnswer = null;
+
+  // Load all questions from backend
+  async function loadQuestions() {
+    try {
+      const response = await fetch(scriptURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: JSON.stringify({ action: 'getOnlineQuestions'})
+      });
+      const data = await response.json();
+      if(data.status === 'success') {
+        questions = data.questions;
+        renderQuestionGrid();
+      } else {
+        alert("Failed to load questions: " + data.message);
+      }
+    } catch (error) {
+      alert("Error fetching questions: " + error.message);
+    }
+  }
+
+  // Render grid of circles with question numbers
+  function renderQuestionGrid() {
+    const grid = document.getElementById('questionGrid');
+    grid.innerHTML = '';
+    questions.forEach((q, idx) => {
+      const circle = document.createElement('div');
+      circle.className = 'circle';
+      circle.textContent = idx + 1;
+
+      // Mark circle red if question is picked (picked_ans not empty)
+      if (q.Picked_Ans && q.Picked_Ans.trim() !== '') {
+        circle.classList.add('picked');
+      }
+
+      // Click only if not picked
+      circle.onclick = () => {
+        if (!circle.classList.contains('picked')) {
+          openQuestion(idx);
+        }
+      };
+
+      grid.appendChild(circle);
+    });
+
+    document.getElementById('questionContainer').style.display = 'none';
+    grid.style.display = 'grid';
+  }
+
+  // Open question view
+  function openQuestion(index) {
+    currentQuestion = questions[index];
+    selectedAnswer = null;
+
+    document.getElementById('questionGrid').style.display = 'none';
+
+    const container = document.getElementById('questionContainer');
+    const questionText = document.getElementById('questionText');
+    const optionsDiv = container.querySelector('.options');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    questionText.textContent = `Q${index + 1}: ${currentQuestion["Question Text"]}`;
+
+    optionsDiv.innerHTML = '';
+    ['A', 'B', 'C', 'D'].forEach(letter => {
+      const optionText = currentQuestion[`Option ${letter}`];
+      const id = `option_${letter}`;
+
+      // Create radio option
+      const label = document.createElement('label');
+      label.htmlFor = id;
+      label.textContent = `${letter}. ${optionText}`;
+
+      const input = document.createElement('input');
+      input.type = 'radio';
+      input.name = 'answer';
+      input.value = letter;
+      input.id = id;
+
+      input.onchange = () => {
+        selectedAnswer = input.value;
+        confirmBtn.disabled = false;
+      };
+
+      label.prepend(input);
+      optionsDiv.appendChild(label);
+    });
+
+    // Reset button states
+    confirmBtn.disabled = true;
+    confirmBtn.style.display = 'inline-block';
+    document.getElementById('backBtn').style.display = 'inline-block';
+
+    // Remove any previous coloring
+    optionsDiv.querySelectorAll('label').forEach(l => {
+      l.classList.remove('correct', 'incorrect');
+    });
+
+    container.style.display = 'block';
+  }
+
+  // On confirm button click
+  document.getElementById('confirmBtn').addEventListener('click', async () => {
+    if (!selectedAnswer) return;
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.disabled = true;
+
+    // Highlight correct and incorrect answers
+    const optionsDiv = document.querySelector('.options');
+    const correctAnswer = currentQuestion["Correct Answer"];
+    optionsDiv.querySelectorAll('label').forEach(label => {
+      const input = label.querySelector('input');
+      if (input.value === correctAnswer) {
+        label.classList.add('correct');
+      }
+      if (input.value === selectedAnswer && selectedAnswer !== correctAnswer) {
+        label.classList.add('incorrect');
+      }
+      input.disabled = true;
+    });
+
+    // Save picked answer to backend
+    try {
+      const updateResponse = await fetch(scriptURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: JSON.stringify({
+          action: 'updatePickedAns',
+          questionId: currentQuestion['Question ID'],
+          pickedAns: selectedAnswer,
+          sheetName: 'Online'
+        })
+      });
+      const updateData = await updateResponse.json();
+
+      if (updateData.status === 'success') {
+        // Update local data & grid highlight
+        currentQuestion.Picked_Ans = selectedAnswer;
+        document
+          .querySelectorAll('.circle')[currentQuestion['Question ID'] - 1]
+          .classList.add('picked');
+      } else {
+        alert('Failed to update picked answer: ' + updateData.message);
+      }
+    } catch (error) {
+      alert('Error updating picked answer: ' + error.message);
+    }
+  });
+
+  // Back to grid button
+  document.getElementById('backBtn').addEventListener('click', () => {
+    document.getElementById('questionContainer').style.display = 'none';
+    renderQuestionGrid();
+  });
+
+  // Load questions on page load
+  window.onload = loadQuestions;
+</script>
+</body>
+</html>

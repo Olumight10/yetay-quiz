@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Set Quiz Time</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f9;
+    }
+    .admin-link a {
+      margin-right: 10px;
+      text-decoration: none;
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 10px;
+    }
+    .info-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-link">
+    <a href="admin-welcome.html">welcome</a>
+    <a href="admin-ongoing.html">ongoing</a>
+    <a href="admin-result.html">result</a>
+    <a href="online.html">online</a>
+    <a href="set-time.html">setTime</a>
+    <a href="leaders.html">Leaders</a>
+  </div>
+
+  <h2>Set Quiz Time</h2>
+
+  <div class="info-box">
+    <div class="form-group">
+      <label for="start">Quiz start time (in minutes from now):</label>
+      <input type="number" id="start" placeholder="e.g. 5">
+    </div>
+
+    <div class="form-group">
+      <label for="end">Quiz end time (in minutes from now):</label>
+      <input type="number" id="end" placeholder="e.g. 30">
+    </div>
+
+    <button onclick="submitTime()">Submit Time</button>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyoL5_Wuef_TKE882CTQfLcBeVpyEThOTA_yVQ9IpayeThqDj3DoA9Vy6wpP8CkWDZ5/exec";
+
+    async function submitTime() {
+      const start = parseInt(document.getElementById("start").value);
+      const end = parseInt(document.getElementById("end").value);
+
+      if (isNaN(start) || isNaN(end) || start < 0 || end <= start) {
+        alert("Please enter valid start and end times. End must be greater than start.");
+        return;
+      }
+
+      const timestamp = new Date().toISOString(); // Save reference timestamp
+
+      try {
+        const response = await fetch(scriptURL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: JSON.stringify({
+            action: "storetime",
+            timestamp,
+            start,
+            end
+          })
+        });
+
+        const result = await response.json();
+        if (result.status === "success") {
+          fetchQuizTime(); // Fetch and log the time set
+          alert("Quiz time set successfully!");
+        } else {
+          alert("Failed to store time: " + (result.message || "Unknown error"));
+        }
+      } catch (err) {
+        console.error("Error submitting time:", err);
+        alert("An error occurred. Check console for details.");
+      }
+    }
+
+
+    async function fetchQuizTime() {
+    try {
+        const response = await fetch(scriptURL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: JSON.stringify({ action: "getQuizTime" })
+        });
+
+        const result = await response.json();
+        if (result.status === "success") {
+        const { timestamp, start, end } = result.time;
+        console.log("Quiz Time:", timestamp, start, end);
+        // optionally update the UI
+        } else {
+        alert("Failed to get quiz time: " + result.message);
+        }
+    } catch (err) {
+        console.error("Error getting quiz time:", err);
+        alert("An error occurred fetching quiz time.");
+    }
+    }
+
+  </script>
+</body>
+</html>

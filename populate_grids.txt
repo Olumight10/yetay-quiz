@@ -1,0 +1,148 @@
+#version 1
+
+function populateGrid(questions) {
+  gridContainer.innerHTML = "";
+  questionContainer.style.display = 'none'; // Hide question container initially
+  confirmBtn.classList.remove('hidden');
+  confirmBtn.classList.add('disabled');
+
+  questions.forEach((q, i) => {
+    const gridBtn = document.createElement("div");
+    gridBtn.className = "g-btn";
+    gridBtn.setAttribute('role', 'button');
+    gridBtn.setAttribute('tabindex', '0');
+    gridBtn.textContent = i + 1;
+    gridBtn.dataset.index = i;
+
+    if (q.Picked_Ans) {
+      gridBtn.onclick = () => {
+        currentQuestionIndex = i;
+        confirmBtn.classList.add('disabled'); 
+        resetUnmarkedGrids(i);
+      };
+    } else {
+      gridBtn.onclick = () => {
+        activateGrid(i);
+      };
+    }
+
+    gridContainer.appendChild(gridBtn);
+
+    if (q.Picked_Ans) {
+      markedGrid(i); // mark green
+    }
+  });
+}
+
+
+
+#version 2 
+
+const normalLimit = 40;   // how many questions to show in normal rounds
+const extraLimit  = 10;   // how many questions to show in extra/tiebreak rounds
+
+
+function populateGrid(questions) {
+  gridContainer.innerHTML = "";
+  questionContainer.style.display = 'none'; // Hide question container initially
+  confirmBtn.classList.remove('hidden');
+  confirmBtn.classList.add('disabled');
+
+  // 🔑 Decide slice boundaries dynamically
+  let startIndex = 0;
+  let endIndex = normalLimit;
+
+  if (currentRound > rounding) {
+    startIndex = Math.max(questions.length - extraLimit, 0);
+    endIndex = questions.length;
+  }
+
+  const gridQuestions = questions.slice(startIndex, endIndex);
+
+  gridQuestions.forEach((q, idx) => {
+    const actualIndex = startIndex + idx; // map to full list index
+
+    const gridBtn = document.createElement("div");
+    gridBtn.className = "g-btn";
+    gridBtn.setAttribute('role', 'button');
+    gridBtn.setAttribute('tabindex', '0');
+    gridBtn.textContent = actualIndex + 1; // keep numbering consistent
+    gridBtn.dataset.index = actualIndex;
+
+    if (q.Picked_Ans) {
+      gridBtn.onclick = () => {
+        currentQuestionIndex = actualIndex;
+        confirmBtn.classList.add('disabled'); 
+        resetUnmarkedGrids(actualIndex);
+      };
+    } else {
+      gridBtn.onclick = () => {
+        activateGrid(actualIndex);
+      };
+    }
+
+    gridContainer.appendChild(gridBtn);
+
+    if (q.Picked_Ans) {
+      markedGrid(actualIndex); // mark green if answered
+    }
+  });
+}
+
+
+
+#version 3
+
+const roundSize   = 10;  // per normal round
+const rounding    = 5;   // total normal rounds
+
+function populateGrid(questions) {
+  gridContainer.innerHTML = "";
+  questionContainer.style.display = 'none';
+  confirmBtn.classList.remove('hidden');
+  confirmBtn.classList.add('disabled');
+
+  let startIndex, endIndex;
+
+  if (currentRound <= rounding) {
+    // Normal rounds (10 questions per round)
+    startIndex = (currentRound - 1) * roundSize;
+    endIndex   = Math.min(startIndex + roundSize, questions.length);
+  } else {
+    // Extra round (all leftovers at once)
+    startIndex = rounding * roundSize; 
+    endIndex   = questions.length; 
+  }
+
+  const gridQuestions = questions.slice(startIndex, endIndex);
+
+  gridQuestions.forEach((q, idx) => {
+    const actualIndex = startIndex + idx;
+
+    const gridBtn = document.createElement("div");
+    gridBtn.className = "g-btn";
+    gridBtn.setAttribute('role', 'button');
+    gridBtn.setAttribute('tabindex', '0');
+    gridBtn.textContent = actualIndex + 1;
+    gridBtn.dataset.index = actualIndex;
+
+    if (q.Picked_Ans) {
+      gridBtn.onclick = () => {
+        currentQuestionIndex = actualIndex;
+        confirmBtn.classList.add('disabled'); 
+        resetUnmarkedGrids(actualIndex);
+      };
+    } else {
+      gridBtn.onclick = () => {
+        activateGrid(actualIndex);
+      };
+    }
+
+    gridContainer.appendChild(gridBtn);
+
+    if (q.Picked_Ans) {
+      markedGrid(actualIndex);
+    }
+  });
+}
+

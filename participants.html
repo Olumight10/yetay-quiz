@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meet the Participants - Yetay</title>
+  <link rel="stylesheet" href="yetay.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <!-- Blue Navbar -->
+  <header class="hero yetay-hero">
+    <div class="header-top">
+      <img src="https://cdn.glitch.global/75a24ea2-773d-456a-8abd-1c76671f333c/yetay_white_logo.png?v=1748084558240" alt="Yetay Logo" class="logo">
+      <nav class="navbar">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="yetay2.html">Yetay 2.0</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+    
+
+  <div class="supertext">
+     <h1>Meet the Participants</h1>
+  </div>
+
+  <!-- Search & Filter -->
+  <section class="filter-section">
+    <input type="text" id="searchInput" placeholder="Search by name or description..." />
+    <select id="filterSelect">
+      <option value="all">All Churches</option>
+      <option value="Grace Chapel">Grace Chapel</option>
+      <option value="Living Word">Living Word</option>
+      <option value="Holy Flame">Holy Flame</option>
+    </select>
+  </section>
+
+  <!-- Participants Display -->
+  <section class="participants-grid" id="participantsGrid">
+    <!-- JS will fill this with participants on load -->
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Yetay. All rights reserved.</p>
+  </footer>
+  <script src="yetay.js"></script>
+</body>
+</html>

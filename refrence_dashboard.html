@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quiz</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+    }
+    h2 {
+      color: #333;
+    }
+    input[type="text"] {
+      padding: 8px;
+      width: 200px;
+      margin-right: 10px;
+    }
+    .question-box {
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .options label {
+      display: block;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #213E6D;
+      color: white;
+      transition: 0.3s;
+    }
+    button:hover:not(:disabled) {
+      box-shadow: 0 0 10px 2px white;
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #encap {
+      background-color: #A0D8EF;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    #encap h2 {
+      color: #213E6D;
+    }
+    .layer1 {
+      height: 300px;
+    }
+    #quizForm {
+      display: none;
+      height: 100vh;
+      display: flex;
+    }
+    .sidebar {
+      width: 20%;
+      background-color: #A0D8EF;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    .timer {
+      font-size: 1.2em;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #213E6D;
+    }
+    .time-text{
+      color: white;
+    }
+
+    .username-display {
+      font-size: 1.5em;
+      text-align: center;
+      color: #213E6D;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .yetay-cbt {
+      font-size: 1em;
+      text-align: center;
+      color: black;
+      font-weight: bold;
+    }
+    .question-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+      gap: 6px;
+      justify-items: center;
+    }
+    .grid-demo{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+      gap: 6px;
+      justify-items: center;
+    }
+    @keyframes blink {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+
+    .grid-demo .grid-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: white;
+      cursor: default;
+      font-size: 0.9em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      opacity: 0.5;
+      animation: blink 1.2s infinite ease-in-out;
+      pointer-events: none;
+    }
+    .question-grid .grid-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: white;
+      cursor: pointer;
+      font-size: 0.9em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .grid-btn.active {
+      background-color: #213E6D;
+      color: white;
+    }
+    .grid-btn.answered {
+      background-color: green;
+      color: white;
+    }
+    .main-content {
+      width: 80%;
+      padding: 30px;
+      box-sizing: border-box;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+    }
+    #navigationButtons {
+      display: flex;
+      justify-content: space-between;
+/*       margin-top: 20px; */
+    }
+    #navigationButtons button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+
+    .loader-line {
+      height: 14px;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #e0e0e0 25%, #f8f8f8 50%, #e0e0e0 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 4px;
+    }
+
+    .loader-question {
+      width: 80%;
+      height: 16px;
+      margin: 10px 0;
+    }
+
+    .loader-option {
+      width: 50%;
+      height: 14px;
+    }
+
+
+    .end-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background-color: #A0D8EF;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 9999;
+      font-family: sans-serif;
+    }
+
+    .end-screen p {
+      margin: 10px 0;
+      font-size: 1.5em;
+      font-weight: 500;
+    }
+
+    .end-screen button {
+      margin-top: 20px;
+      padding: 12px 24px;
+      background-color: #0077B6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .end-screen button:hover {
+      background-color: #005f87;
+    }
+
+
+  </style>
+</head>
+<body>
+  <form id="quizForm">
+    <div class="sidebar">
+      <div class="timer">Time Left: <span id="quizTimer" class="time-text"> 15:00</span> </div>
+      <div class="grid-demo" id="gridDemo">
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+        <div class="grid-btn"></div>
+      </div>
+      <div class="question-grid" id="questionGrid"></div>
+    </div>
+    <div class="main-content">
+      <div class="username-display" id="userDisplay">user</div>
+      <p class="yetay-cbt">Yetay CBT Test</p>
+
+      <div class="question-placeholder" id="questionPlaceholder">
+        <div class="loader-line loader-question"></div> <!-- Q1. question text -->
+        <div class="loader-line loader-option"></div> <!-- A -->
+        <div class="loader-line loader-option"></div> <!-- B -->
+        <div class="loader-line loader-option"></div> <!-- C -->
+        <div class="loader-line loader-option"></div> <!-- D -->
+      </div>
+      <div id="questionContainer"></div>
+      <div id="navigationButtons">
+        <button type="button" id="prevBtn" disabled>Previous</button>
+        <button type="button" id="nextBtn" disabled>Next</button>
+        <button type="submit" id="quizSubmitBtn" disabled>Submit Quiz</button>
+      </div>
+    </div>
+  </form>
+    <!-- Quiz Submitted Message -->
+    <div id="quizSubmittedMsg" class="end-screen" style="display: none;">
+      <p id="submittedUser"></p>
+      <p>You have successfully submitted your quiz.</p>
+      <button onclick="goToScore()">See Score</button>
+    </div>
+
+    <!-- Time Up Message -->
+    <div id="timeUpMsg" class="end-screen" style="display: none;">
+      <p id="timeUpUser"></p>
+      <p>Time is up. Your quiz has been submitted automatically.</p>
+      <button onclick="goToScore()">See Score</button>
+    </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyoL5_Wuef_TKE882CTQfLcBeVpyEThOTA_yVQ9IpayeThqDj3DoA9Vy6wpP8CkWDZ5/exec";
+    const quizForm = document.getElementById('quizForm');
+    const questionContainer = document.getElementById('questionContainer');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const quizSubmitBtn = document.getElementById('quizSubmitBtn');
+    const userDisplay = document.getElementById('userDisplay');
+    const questionGrid = document.getElementById('questionGrid');
+    const timerDisplay = document.getElementById('quizTimer');
+    const griddemo = document.getElementById('gridDemo');
+    const questionPlaceholder = document.getElementById('questionPlaceholder');
+
+    let loadedQuestions = [];
+    let currentQuestion = 0;
+    const quizUser = localStorage.getItem("quizUser") || prompt("Enter your username:");
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      const quizUser = localStorage.getItem("quizUser");
+      if (!quizUser) {
+        alert("No username found. Please login first.");
+        return window.location.href = "cbt.html"; // or any login page
+      }
+
+      userDisplay.textContent = `${quizUser}`;
+
+      try {
+        const response = await fetch(scriptURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: JSON.stringify({ action: "getQuestions", username: quizUser })
+        });
+
+        const result = await response.json();
+        questionContainer.innerHTML = "";
+        if (result.status === "success") {
+          if (result.substatus === "submitted") return window.location.href = "user-score.html";
+
+          loadedQuestions = result.questions;
+          griddemo.style.display = "none"; // Hide demo grid
+          populateGrid(loadedQuestions.length);
+
+          loadedQuestions.forEach((q, i) => {
+            const div = document.createElement("div");
+            div.classList.add("question-box");
+            div.id = `question-${i}`;
+            div.style.display = i === 0 ? "block" : "none";
+            div.innerHTML = `
+              <p><strong>Q${i + 1}: ${q.text}</strong></p>
+              <div class="options">
+                ${['A', 'B', 'C', 'D'].map(letter => `
+                  <label>
+                    <input type="radio" name="q${i}" value="${letter}" ${q.picked === letter ? 'checked' : ''}
+                      onchange="handleAnswerChange('${q.id}', '${letter}', ${i})"> ${letter}. ${q.options[letter]}
+                  </label>
+                `).join('')}
+              </div>`;
+            questionContainer.appendChild(div);
+            if (q.picked) markQuestionAnswered(i);
+          });
+          questionPlaceholder.style.display = "none"; // Hide placeholder
+          prevBtn.disabled = false;
+          nextBtn.disabled = false;
+          quizSubmitBtn.disabled = false;
+          quizForm.style.display = 'flex';
+          showCurrentQuestion();
+          startTimer(15 * 60); // 30 seconds for demo
+        } else {
+          alert("Failed to load questions.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("An error occurred.");
+      }
+    });
+
+
+    function handleAnswerChange(id, picked, i) {
+      markQuestionAnswered(i);
+      fetch(scriptURL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: JSON.stringify({
+          action: "submitSingleAnswer",
+          username: localStorage.getItem("quizUser"),
+          answers: [{ id, picked }]
+        })
+      });
+    }
+
+    function populateGrid(total) {
+      questionGrid.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const div = document.createElement('div');
+        div.className = 'grid-btn';
+        div.textContent = i + 1;
+        div.setAttribute('role', 'button');
+        div.setAttribute('tabindex', '0');
+        div.addEventListener('click', () => {
+          currentQuestion = i;
+          showCurrentQuestion();
+        });
+        questionGrid.appendChild(div);
+      }
+    }
+
+    function markQuestionAnswered(i) {
+      const btn = document.getElementById(`grid-q${i}`) || questionGrid.children[i];
+      if (btn) btn.classList.add('answered');
+    }
+
+    function showCurrentQuestion() {
+      loadedQuestions.forEach((_, i) => {
+        document.getElementById(`question-${i}`).style.display = i === currentQuestion ? 'block' : 'none';
+        const btn = questionGrid.children[i];
+        if (btn) btn.classList.toggle('active', i === currentQuestion);
+      });
+      prevBtn.disabled = currentQuestion === 0;
+      nextBtn.disabled = currentQuestion === loadedQuestions.length - 1;
+      quizSubmitBtn.disabled = loadedQuestions.length === 0;
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showCurrentQuestion();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentQuestion < loadedQuestions.length - 1) {
+        currentQuestion++;
+        showCurrentQuestion();
+      }
+    });
+    function showQuizSubmitted(username) {
+      document.getElementById('submittedUser').innerText = `Dear ${username},`;
+      document.getElementById('quizSubmittedMsg').style.display = 'flex';
+    }
+
+    function showTimeUp(username) {
+      document.getElementById('timeUpUser').innerText = `Dear ${username},`;
+      document.getElementById('timeUpMsg').style.display = 'flex';
+    }
+
+    function goToScore() {
+      window.location.href = 'user-score.html';
+}
+
+
+    function startTimer(duration) {
+      let timer = duration;
+      const interval = setInterval(() => {
+        const min = Math.floor(timer / 60);
+        const sec = timer % 60;
+        timerDisplay.textContent = ` ${min}:${sec < 10 ? '0' + sec : sec}`;
+        if (--timer < 0) {
+          clearInterval(interval);
+          showTimeUp(quizUser);
+          // Submit without confirmation
+          submitQuiz();
+        }
+      }, 1000);
+    }
+
+  quizForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+    const confirmSubmit = confirm("Are you sure you want to submit your quiz?");
+    if (confirmSubmit) {
+      showQuizSubmitted(quizUser);
+      submitQuiz(); // Manual submit
+    };
+  });
+
+  async function submitQuiz() {
+    const quizUser = localStorage.getItem("quizUser");
+    const pickedAnswers = [];
+
+    loadedQuestions.forEach((q, i) => {
+      const selected = document.querySelector(`input[name="q${i}"]:checked`);
+      pickedAnswers.push({ id: q.id, picked: selected ? selected.value : "" });
+    });
+
+    const response = await fetch(scriptURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: JSON.stringify({
+        action: "submitAnswers",
+        username: quizUser,
+        answers: pickedAnswers
+      })
+    });
+
+
+  }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Participants</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+    }
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .participants-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .participant-card {
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .participant-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Search by name or desc" />
+    <select id="filterSelect">
+      <option value="all">All Churches</option>
+      <option value="Grace Chapel">Grace Chapel</option>
+      <option value="Living Word">Living Word</option>
+      <option value="Holy Flame">Holy Flame</option>
+    </select>
+  </div>
+
+  <section class="participants-grid" id="participantsGrid"></section>
+
+  <script src="part.js"></script>
+</body>
+</html>

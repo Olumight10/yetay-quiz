@@ -1,2 +1,2 @@
-# yetay-quiz
+# yetay-2.0
 Building Tomorrow Leaders Today.....

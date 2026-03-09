@@ -1,0 +1,679 @@
+/* Color Palette & Variables */
+:root {
+    --primary-blue: #0056b3;
+    --accent-gold: #d4af37;
+    --deep-blue: #003d82;
+    --text-dark: #1a1a1a;
+    --text-muted: #555;
+    --white: #ffffff;
+    --light-bg: #f8f9fa;
+    --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: var(--text-dark);
+    background-color: var(--white);
+    overflow-x: hidden;
+}
+
+/* Navigation */
+.navbar {
+    background: var(--white);
+    padding: 1rem 5%;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    border-bottom: 3px solid var(--accent-gold);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.nav-logo { height: 50px; width: auto; }
+.nav-title { font-size: 1.6rem; font-weight: 800; color: var(--primary-blue); letter-spacing: 1px; }
+
+.nav-links { display: flex; list-style: none; gap: 30px; }
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    text-transform: uppercase;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--accent-gold); }
+
+.mobile-menu-btn { display: none; font-size: 1.5rem; color: var(--primary-blue); cursor: pointer; }
+
+/* Enhanced Hero Section */
+.hero {
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    background: 
+        linear-gradient(135deg, rgba(0, 86, 179, 0.85) 0%, rgba(255, 255, 255, 0.9) 60%, rgba(255, 255, 255, 1) 100%), 
+        url('Yetay_1.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Parallax effect */
+    padding: 0 5%;
+    overflow: hidden;
+}
+
+.hero-logo {
+    width: 160px;
+    margin-bottom: 25px;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+    animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+.hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    color: var(--primary-blue);
+    line-height: 1.1;
+    margin-bottom: 20px;
+    font-weight: 800;
+}
+
+.gold-text { color: var(--accent-gold); }
+
+.hero-sub {
+    background: var(--accent-gold);
+    color: #fff;
+    display: inline-block;
+    padding: 6px 25px;
+    font-size: 0.9rem;
+    letter-spacing: 3px;
+    font-weight: 700;
+    border-radius: 50px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    text-transform: uppercase;
+}
+
+/* Buttons */
+.cta-primary {
+    background: var(--primary-blue);
+    color: white;
+    padding: 16px 40px;
+    border: 2px solid var(--primary-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 50px;
+}
+
+.cta-primary:hover {
+    background: transparent;
+    color: var(--primary-blue);
+    transform: translateY(-3px);
+}
+
+.cta-secondary {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(5px);
+    color: var(--primary-blue);
+    padding: 16px 40px;
+    border: 2px solid var(--primary-blue);
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: var(--transition);
+    border-radius: 50px;
+    margin-left: 15px;
+}
+
+.cta-secondary:hover { background: var(--primary-blue); color: white; }
+
+/* Sections */
+.section-padding { padding: 100px 5%; }
+.container { max-width: 1200px; margin: 0 auto; text-align: center; }
+.light-gray { background-color: var(--light-bg); }
+
+.divider {
+    width: 70px;
+    height: 5px;
+    background: var(--accent-gold);
+    margin: 15px auto 30px;
+    border-radius: 10px;
+}
+
+h2 { font-size: 2.8rem; color: var(--primary-blue); font-weight: 800; }
+.blue-title { color: var(--primary-blue); }
+
+.about-text {
+    max-width: 850px;
+    margin: 0 auto 30px;
+    font-size: 1.15rem;
+    color: var(--text-muted);
+}
+
+/* Gallery Grid */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 30px;
+    margin: 50px 0;
+}
+
+.img-wrapper {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    height: 350px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.img-wrapper:hover img { transform: scale(1.1); }
+
+.btn-outline {
+    display: inline-block;
+    padding: 14px 35px;
+    border: 2px solid var(--accent-gold);
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-weight: 700;
+    border-radius: 50px;
+    transition: var(--transition);
+}
+
+.btn-outline:hover { background: var(--accent-gold); color: white; }
+
+/* Quick Access Cards */
+.card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-top: 50px;
+}
+
+.card {
+    background: var(--white);
+    padding: 60px 30px;
+    border-radius: 20px;
+    border: 1px solid #eee;
+    transition: var(--transition);
+}
+
+.card-icon { font-size: 3.5rem; color: var(--accent-gold); margin-bottom: 25px; }
+.card h3 { margin-bottom: 15px; color: var(--primary-blue); font-size: 1.5rem; }
+.card:hover { transform: translateY(-15px); border-color: var(--accent-gold); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
+
+/* Footer */
+.main-footer {
+    background: var(--primary-blue);
+    color: var(--white);
+    padding: 80px 5% 40px;
+    text-align: center;
+}
+
+.footer-logo { height: 90px; margin-bottom: 25px; filter: brightness(0) invert(1); }
+.social-icons { margin: 30px 0; }
+.social-icons a { color: var(--accent-gold); font-size: 2rem; margin: 0 15px; transition: var(--transition); }
+.social-icons a:hover { color: white; transform: scale(1.2); }
+.footer-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 35px 0; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none; /* Add JS to toggle this */
+        flex-direction: column;
+        position: absolute;
+        top: 80px;
+        left: 0;
+        width: 100%;
+        background: white;
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .nav-links.active { display: flex; }
+    .mobile-menu-btn { display: block; }
+    .hero { height: 75vh; background-attachment: scroll; }
+    .cta-secondary { margin-left: 0; margin-top: 15px; width: 100%; }
+    .cta-primary { width: 100%; }
+}
+
+/* About Page Specific Styles */
+
+/* Shorter Hero for secondary pages */
+.secondary-hero {
+    height: 50vh !important;
+    background: linear-gradient(rgba(0, 50, 100, 0.8), rgba(0, 50, 100, 0.8)), url('Yetay_3.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.secondary-hero h1 {
+    font-size: 3.5rem;
+    color: var(--accent-gold) !important;
+}
+
+/* Vision/Mission Grid */
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+    margin-top: -50px; /* Overlap effect */
+}
+
+.about-card {
+    background: white;
+    padding: 50px 30px;
+    border-radius: 15px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    border-top: 5px solid var(--accent-gold);
+    transition: var(--transition);
+}
+
+.about-card:hover { transform: translateY(-10px); }
+
+.icon-box {
+    width: 70px;
+    height: 70px;
+    background: var(--primary-blue);
+    color: var(--accent-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 20px;
+}
+
+/* History Section */
+.history-content {
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    text-align: left;
+    margin-top: 50px;
+}
+
+.history-img {
+    flex: 1;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 5px solid var(--white);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.history-img img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.history-text {
+    flex: 1;
+}
+
+.history-text p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.8;
+}
+
+/* Responsive About */
+@media (max-width: 992px) {
+    .history-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .about-grid {
+        margin-top: 20px;
+    }
+}
+
+/* Gallery Page Specific Styles */
+.gallery-hero {
+    background: linear-gradient(rgba(0, 86, 179, 0.8), rgba(0, 61, 130, 0.9)), url('Yetay_4.jpg') !important;
+}
+
+.masonry-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-auto-rows: 200px;
+    grid-gap: 20px;
+    grid-auto-flow: dense;
+    margin-top: 40px;
+}
+
+.gallery-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+/* Specific item sizes for Masonry feel */
+.gallery-item.tall { grid-row: span 2; }
+.gallery-item.wide { grid-column: span 2; }
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.gallery-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 86, 179, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.gallery-overlay i {
+    color: var(--accent-gold);
+    font-size: 2.5rem;
+    transform: scale(0.5);
+    transition: var(--transition);
+}
+
+.gallery-item:hover .gallery-overlay { opacity: 1; }
+.gallery-item:hover .gallery-overlay i { transform: scale(1); }
+.gallery-item:hover img { transform: scale(1.1); }
+
+/* Responsive Adjustments for Gallery */
+@media (max-width: 600px) {
+    .masonry-gallery {
+        grid-template-columns: 1fr;
+        grid-auto-rows: 250px;
+    }
+    .gallery-item.wide { grid-column: span 1; }
+}
+
+/* Yetay 2.0 Dashboard Styles */
+.yetay-hero {
+    background: linear-gradient(rgba(0, 86, 179, 0.9), rgba(0, 0, 0, 0.7)), url('Yetay_5.jpg') !important;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.action-card {
+    background: var(--white);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    transition: var(--transition);
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-img-box {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.card-tag {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--primary-blue);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.card-tag.gold { background: var(--accent-gold); color: black; }
+.card-tag.blue { background: var(--deep-blue); }
+
+.card-info {
+    padding: 30px 20px;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-info h2 {
+    font-size: 1.4rem;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+
+.card-info p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 25px;
+}
+
+.action-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 86, 179, 0.15);
+    border-color: var(--accent-gold);
+}
+
+.action-card:hover .card-img-box img {
+    transform: scale(1.1);
+}
+
+/* Pulse animation for the Exam button to make it 'Lit' */
+.pulse {
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(212, 175, 55, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+}
+
+/* Specific highlight for CBT Card */
+.urgent {
+    border: 2px solid var(--accent-gold);
+    background: #fffdf5;
+}
+
+/* Ensure hero buttons are spaced and centered correctly when wrapped in <a> tags */
+.hero-btns {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Modern spacing between buttons */
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.hero-btns a {
+    text-decoration: none; /* Removes the underline */
+    display: inline-block;
+}
+
+/* Fix for mobile view: stack buttons if screen is too small */
+@media (max-width: 480px) {
+    .hero-btns {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .hero-btns a {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .cta-primary, .cta-secondary {
+        width: 100%;
+        margin-left: 0 !important; /* Removes the margin-left from cta-secondary */
+    }
+}
+
+/* Card Link Wrapper */
+.card-link {
+    text-decoration: none;
+    color: inherit; /* Keeps the text dark/blue as defined before */
+    display: block;
+    transition: var(--transition);
+}
+
+.card {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add a subtle "Start Now" hint that appears on hover */
+.card-cta {
+    display: inline-block;
+    margin-top: 15px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    opacity: 0.7;
+    transition: var(--transition);
+}
+
+/* Lit Hover Effect */
+.card-link:hover .card {
+    transform: translateY(-12px);
+    border-color: var(--accent-gold);
+    box-shadow: 0 15px 30px rgba(0, 86, 179, 0.1);
+}
+
+.card-link:hover .card-cta {
+    opacity: 1;
+    letter-spacing: 1px;
+}
+
+.card-link:hover .card-icon {
+    transform: scale(1.1);
+    color: var(--primary-blue); /* Color shift on hover */
+}
+
+/* Mobile Optimization & Menu Fix */
+@media (max-width: 768px) {
+    .mobile-menu-btn {
+        display: block; /* Show the hamburger */
+        z-index: 2001;
+    }
+
+    .nav-links {
+        display: none; /* Hide by default */
+        flex-direction: column;
+        position: absolute;
+        top: 100%; /* Sits right under the navbar */
+        left: 0;
+        width: 100%;
+        background: var(--white);
+        padding: 20px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        text-align: center;
+        gap: 20px;
+        border-bottom: 2px solid var(--accent-gold);
+    }
+
+    /* When JS toggles this class, the menu appears */
+    .nav-links.active {
+        display: flex;
+    }
+
+    /* Hero Mobile Fixes */
+    .hero {
+        height: auto;
+        min-height: 80vh;
+        padding: 120px 20px 60px; /* More top padding so it doesn't hide under nav */
+        background-attachment: scroll; /* Parallax is buggy on mobile, so we disable it */
+    }
+
+    .hero h1 {
+        font-size: 2.2rem;
+        margin-bottom: 15px;
+    }
+
+    .hero-logo {
+        width: 120px;
+    }
+
+    .hero-sub {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+        padding: 5px 15px;
+    }
+
+    .hero-btns {
+        flex-direction: column;
+        width: 100%;
+        gap: 15px;
+    }
+
+    .hero-btns a {
+        width: 100%;
+    }
+
+    .cta-primary, .cta-secondary {
+        width: 100%;
+        margin-left: 0 !important;
+        padding: 14px;
+    }
+
+    /* Gallery Mobile Fixes */
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.hero-content {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    z-index: 2;
+}
